@@ -30,7 +30,7 @@ namespace Business.Concrete
             _productDal = productDal;
             _categoryService = categoryService;
         }
-        [SecuredOperation("Product.List,Admin")]
+        [SecuredOperation("product.add,admin")]
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
@@ -44,7 +44,7 @@ namespace Business.Concrete
             return new SuccessResult(Messages.ProductAddedMessage);
 
         }
-
+        [SecuredOperation("product.list,admin")]
         public IDataResult<List<Product>> GetAll()
         {
             if (DateTime.Now.Hour==23)
