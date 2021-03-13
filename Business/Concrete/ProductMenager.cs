@@ -4,6 +4,7 @@ using Business.CCS;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Caching;
+using Core.Aspects.Autofac.Performence;
 using Core.Aspects.Autofac.Transaction;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
@@ -19,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Business.Concrete
 {
@@ -47,10 +49,11 @@ namespace Business.Concrete
             return new SuccessResult(Messages.ProductAddedMessage);
 
         }
-        [CacheAspect]
+        [PerformanceAspect(5)]
         public IDataResult<List<Product>> GetAll()
         {
-            if (DateTime.Now.Hour==22)
+            Thread.Sleep(5000);
+            if (DateTime.Now.Hour==11)
             {
                 return new ErrorDataResult<List<Product>>(Messages.MaintenenceTime);
             }
@@ -75,7 +78,7 @@ namespace Business.Concrete
 
         public IDataResult<List<ProductDetailDto>> GetProductDetails()
         {
-            if (DateTime.Now.Hour == 23)
+            if (DateTime.Now.Hour == 10)
             {
                 return new ErrorDataResult<List<ProductDetailDto>>(Messages.MaintenenceTime);
             }
@@ -117,15 +120,11 @@ namespace Business.Concrete
             return new SuccessResult();
         }
         [TransactionScopeAspect]
-        public IResult AddTransactionalTest(Product product)
+        public IResult TransactionalOperation(Product product)
         {
-            Add(product);
-            if (product.UnitPrice<10)
-            {
-                throw new Exception("");
-            }
-            Add(product);
-            return null;
+            _productDal.Update(product);
+            _productDal.Add(product);
+            return new SuccessResult("Ürün güncellendi");
         }
     }
 }
